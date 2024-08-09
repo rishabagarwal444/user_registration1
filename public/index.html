@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            animation: fadeIn 1s ease-in-out;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label, input {
+            margin: 10px 0;
+        }
+        input {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+        }
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: #2575fc;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            margin-top: 20px;
+        }
+        button:hover {
+            background: #6a11cb;
+        }
+        .error {
+            color: #ff0000;
+            margin-top: -10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .success {
+            color: #00ff00;
+            font-size: 16px;
+        }
+        .form-group {
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Registration</h1>
+        <form id="userForm">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" required>
+                <span class="error" id="firstNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" required>
+                <span class="error" id="lastNameError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="mobileNo">Mobile No:</label>
+                <input type="text" id="mobileNo" name="mobileNo" pattern="\d{10}" required>
+                <span class="error" id="mobileNoError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                <span class="error" id="emailError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="street">Street:</label>
+                <input type="text" id="street" name="address[street]">
+            </div>
+
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" id="city" name="address[city]">
+            </div>
+
+            <div class="form-group">
+                <label for="state">State:</label>
+                <input type="text" id="state" name="address[state]">
+            </div>
+
+            <div class="form-group">
+                <label for="country">Country:</label>
+                <input type="text" id="country" name="address[country]">
+            </div>
+
+            <div class="form-group">
+                <label for="loginId">Login ID:</label>
+                <input type="text" id="loginId" name="loginId" pattern="[a-zA-Z0-9]{8}" required>
+                <span class="error" id="loginIdError"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$" required>
+                <span class="error" id="passwordError"></span>
+            </div>
+
+            <button type="submit">Save</button>
+            <span class="success" id="successMessage"></span>
+        </form>
+        <a href="/users">View Users</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#userForm').on('submit', function(event) {
+            event.preventDefault();
+            let isValid = true;
+
+            // Clear previous errors
+            $('.error').text('');
+            $('#successMessage').text('');
+
+            // Validate First Name
+            if (!$('#firstName').val()) {
+                $('#firstNameError').text('First name is required.');
+                isValid = false;
+            }
+
+            // Validate Last Name
+            if (!$('#lastName').val()) {
+                $('#lastNameError').text('Last name is required.');
+                isValid = false;
+            }
+
+            // Validate Mobile Number
+            const mobilePattern = /^\d{10}$/;
+            if (!mobilePattern.test($('#mobileNo').val())) {
+                $('#mobileNoError').text('Mobile number must be 10 digits.');
+                isValid = false;
+            }
+
+            // Validate Email
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test($('#email').val())) {
+                $('#emailError').text('Invalid email format.');
+                isValid = false;
+            }
+
+            // Validate Login ID
+            const loginPattern = /^[a-zA-Z0-9]{8}$/;
+            if (!loginPattern.test($('#loginId').val())) {
+                $('#loginIdError').text('Login ID must be 8 alphanumeric characters.');
+                isValid = false;
+            }
+
+            // Validate Password
+            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+            if (!passwordPattern.test($('#password').val())) {
+                $('#passwordError').text('Password must be at least 6 characters, include an uppercase letter, a number, and a special character.');
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            const formData = $(this).serializeArray();
+            const data = {};
+            formData.forEach(item => {
+                if (item.name.includes('[')) {
+                    const keys = item.name.split(/[[\]]{1,2}/).filter(k => k);
+                    if (!data[keys[0]]) data[keys[0]] = {};
+                    data[keys[0]][keys[1]] = item.value;
+                } else {
+                    data[item.name] = item.value;
+                }
+            });
+
+            $.ajax({
+                type: 'POST',
+                url: '/user/create',
+                data: JSON.stringify(data),
+                contentType: 'application/json',
+                success: function(response) {
+                    $('#successMessage').text('User created successfully!');
+                    $('#userForm')[0].reset();
+                },
+                error: function(err) {
+                    alert('Error creating user');
+                    console.error(err);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
