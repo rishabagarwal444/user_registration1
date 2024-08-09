@@ -21,7 +21,6 @@
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
             width: 400px;
-            animation: fadeIn 1s ease-in-out;
             text-align: center;
         }
         h1 {
@@ -64,13 +63,6 @@
             color: #00ff00;
             font-size: 16px;
         }
-        .form-group {
-            position: relative;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
     </style>
 </head>
 <body>
@@ -91,7 +83,7 @@
 
             <div class="form-group">
                 <label for="mobileNo">Mobile No:</label>
-                <input type="text" id="mobileNo" name="mobileNo" pattern="\d{10}" required>
+                <input type="text" id="mobileNo" name="mobileNo" required>
                 <span class="error" id="mobileNoError"></span>
             </div>
 
@@ -103,33 +95,37 @@
 
             <div class="form-group">
                 <label for="street">Street:</label>
-                <input type="text" id="street" name="address[street]">
+                <input type="text" id="street" name="address[street]" required>
+                <span class="error" id="streetError"></span>
             </div>
 
             <div class="form-group">
                 <label for="city">City:</label>
-                <input type="text" id="city" name="address[city]">
+                <input type="text" id="city" name="address[city]" required>
+                <span class="error" id="cityError"></span>
             </div>
 
             <div class="form-group">
                 <label for="state">State:</label>
-                <input type="text" id="state" name="address[state]">
+                <input type="text" id="state" name="address[state]" required>
+                <span class="error" id="stateError"></span>
             </div>
 
             <div class="form-group">
                 <label for="country">Country:</label>
-                <input type="text" id="country" name="address[country]">
+                <input type="text" id="country" name="address[country]" required>
+                <span class="error" id="countryError"></span>
             </div>
 
             <div class="form-group">
                 <label for="loginId">Login ID:</label>
-                <input type="text" id="loginId" name="loginId" pattern="[a-zA-Z0-9]{8}" required>
+                <input type="text" id="loginId" name="loginId" required>
                 <span class="error" id="loginIdError"></span>
             </div>
 
             <div class="form-group">
                 <label for="password">Password:</label>
-                <input type="password" id="password" name="password" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$" required>
+                <input type="password" id="password" name="password" required>
                 <span class="error" id="passwordError"></span>
             </div>
 
@@ -139,85 +135,93 @@
         <a href="/users">View Users</a>
     </div>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $('#userForm').on('submit', function(event) {
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                validateField(this);
+            });
+        });
+
+        document.getElementById('userForm').addEventListener('submit', function(event) {
             event.preventDefault();
             let isValid = true;
 
-            // Clear previous errors
-            $('.error').text('');
-            $('#successMessage').text('');
+            // Clear success message
+            document.getElementById('successMessage').textContent = '';
 
-            // Validate First Name
-            if (!$('#firstName').val()) {
-                $('#firstNameError').text('First name is required.');
-                isValid = false;
-            }
-
-            // Validate Last Name
-            if (!$('#lastName').val()) {
-                $('#lastNameError').text('Last name is required.');
-                isValid = false;
-            }
-
-            // Validate Mobile Number
-            const mobilePattern = /^\d{10}$/;
-            if (!mobilePattern.test($('#mobileNo').val())) {
-                $('#mobileNoError').text('Mobile number must be 10 digits.');
-                isValid = false;
-            }
-
-            // Validate Email
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test($('#email').val())) {
-                $('#emailError').text('Invalid email format.');
-                isValid = false;
-            }
-
-            // Validate Login ID
-            const loginPattern = /^[a-zA-Z0-9]{8}$/;
-            if (!loginPattern.test($('#loginId').val())) {
-                $('#loginIdError').text('Login ID must be 8 alphanumeric characters.');
-                isValid = false;
-            }
-
-            // Validate Password
-            const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
-            if (!passwordPattern.test($('#password').val())) {
-                $('#passwordError').text('Password must be at least 6 characters, include an uppercase letter, a number, and a special character.');
-                isValid = false;
-            }
-
-            if (!isValid) return;
-
-            const formData = $(this).serializeArray();
-            const data = {};
-            formData.forEach(item => {
-                if (item.name.includes('[')) {
-                    const keys = item.name.split(/[[\]]{1,2}/).filter(k => k);
-                    if (!data[keys[0]]) data[keys[0]] = {};
-                    data[keys[0]][keys[1]] = item.value;
-                } else {
-                    data[item.name] = item.value;
+            // Validate all fields on submit
+            document.querySelectorAll('input').forEach(input => {
+                if (!validateField(input)) {
+                    isValid = false;
                 }
             });
 
-            $.ajax({
-                type: 'POST',
-                url: '/user/create',
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                success: function(response) {
-                    $('#successMessage').text('User created successfully!');
-                    $('#userForm')[0].reset();
-                },
-                error: function(err) {
-                    alert('Error creating user');
-                    console.error(err);
-                }
-            });
+            if (isValid) {
+                document.getElementById('successMessage').textContent = 'User created successfully!';
+                document.getElementById('userForm').reset();
+            }
         });
+
+        function validateField(field) {
+            let isValid = true;
+            const value = field.value.trim();
+            const errorElement = document.getElementById(field.id + 'Error');
+
+            if (!value) {
+                errorElement.textContent = `${field.name.replace(/[\[\]]/g, ' ')} is required.`;
+                isValid = false;
+            } else {
+                switch (field.id) {
+                    case 'firstName':
+                    case 'lastName':
+                    case 'street':
+                    case 'city':
+                    case 'state':
+                    case 'country':
+                        if (!isNaN(value)) {
+                            errorElement.textContent = `${field.name.replace(/[\[\]]/g, ' ')} must be a string.`;
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = '';
+                        }
+                        break;
+                    case 'mobileNo':
+                        if (!/^\d{10}$/.test(value)) {
+                            errorElement.textContent = 'Mobile number must be 10 digits.';
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = '';
+                        }
+                        break;
+                    case 'email':
+                        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+                            errorElement.textContent = 'Invalid email format.';
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = '';
+                        }
+                        break;
+                    case 'loginId':
+                        if (!/^[a-zA-Z0-9]{8}$/.test(value)) {
+                            errorElement.textContent = 'Login ID must be 8 alphanumeric characters.';
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = '';
+                        }
+                        break;
+                    case 'password':
+                        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/.test(value)) {
+                            errorElement.textContent = 'Password must be at least 6 characters, include an uppercase letter, a number, and a special character.';
+                            isValid = false;
+                        } else {
+                            errorElement.textContent = '';
+                        }
+                        break;
+                }
+            }
+
+            return isValid;
+        }
     </script>
 </body>
 </html>
