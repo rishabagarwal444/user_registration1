@@ -6,7 +6,7 @@ const path = require('path');
 
 const app = express();
 
-mongoose.connect('mongodb://localhost:27017/userdb', {
+mongoose.connect('mongodb+srv://rishabagarwal444:iuQUCFRUomkbqP8o@cluster0.ciyiv0h.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
